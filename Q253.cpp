@@ -5,57 +5,70 @@
 #include <iomanip>
 using namespace std;
 
-typedef pair <int, double> edges;
+typedef pair <int, vector<int> > edges;
 int n,m;
 
 struct node{
-    int to, distance, limit;
+    int v, speed, back;
     double time;
-    friend bool operator(node n1, node n2){
-        return n1.time > n2.time;
+};
+
+struct comp{
+    bool operator()(const node& a, const node& b){
+        return a.time > b.time;
     }
+};
+
+node createNode(int v, int speed, double time, int back){
+    node new_node;
+    new_node.v = v;
+    new_node.speed = speed;
+    new_node.time = time;
+    new_node.back = back;
+    return new_node;
 }
 
-void addEdges(vector<node> adj[], int from, int to, int distance, int limit){
-    double time = (double)distance/limit;
-    adj[from].push_back(make_pair(to, time)); 
-    adj[to].push_back(make_pair(from, time)); 
+void addEdges(vector<edges> adj[], int from, int to, int distance, int limit){
+    vector<int> constraints;
+    constraints.push_back(distance);
+    constraints.push_back(limit);
+    adj[from].push_back(make_pair(to, constraints)); 
+    adj[to].push_back(make_pair(from, constraints)); 
 }
 
-void dijkstra(vector<edges> adj[], int from, int to){
-    const int INF = 101;
-    vector<vector<double>> dist(n+1, vector<double>(n+1, INF));
+node dijkstra(vector<edges> adj[], int from, int to){
+    vector<vector<vector<bool> > > visited(n+1, vector<vector<bool> >(n+1, vector<bool>(31)));
+   
+    priority_queue<node, vector<node>, comp> pq;
+    node init = createNode(from, 0, 0, from);
+    pq.push(init);
 
-    priority_queue<edges> pq;
-    pq.push(make_pair(from,0));
-    priority_queue<edges> backq;
-    backq.push(make_pair(from,0));
-
-    int u;
-    int back;
+    node res = init;
+    node u;
     int speed;
-    bool start = true;
     int d_speed[3] = {-1,0,1};
     while(!pq.empty()){
-        u = pq.top().first;
-        if(u != from) start = false;
-        if(start) speed = 1; 
-        pq.pop();
-        back = backq.top().first;
+        u = pq.top();
+        if(u.v == to && u.speed == 1)
+            return u;
 
+        pq.pop();
         //relexation
-        for(int v = 0; v < adj[u].size(); i++){
-            if(adj[u][v].first != back){
-                for(int i = 0; i > 3; i++){
-                    if( adj[u][v].second
+        for(int i = 0; i < adj[u.v].size(); i++){  //u.v = node u with vertex index v
+            if(adj[u.v][i].first != u.back){   // no u-turn 
+                for(int j = 0; j < 3; j++){ // acceleration
+                    int change = u.speed + d_speed[j];
+                    if(change > 0 && change <= adj[u.v][i].second[1] && !visited[u.v][adj[u.v][i].first][change]){ //after change of speed must not exceed limit and > 0
+                        double d_time = adj[u.v][i].second[0] / (double)change + u.time;
+                        node add = createNode(adj[u.v][i].first, change, d_time, u.v);
+                        visited[u.v][adj[u.v][i].first][change] = 1;
+                        pq.push(add);
+                    }
                 }
-                
             }
-        
         }
-           
-        
     }
+    return init;
 }
 
 int main(){
@@ -72,11 +85,12 @@ int main(){
             addEdges(adj, x, y ,d , c);
         }
 
-        dijkstra(adj, s, g);
-
-    //     for(int i=1; i <= n; i++){
-    //         for (auto x : adj[i])
-    //         cout << "from " << i << " to " << x.first << " needs " << fixed << setprecision(5) << x.second << endl;
-    //     }
+        node res = dijkstra(adj, s, g);
+        if(res.v == g){
+            cout << fixed << setprecision(5) << res.time <<endl;
+        }
+        else{
+            cout<< "unreachable" << endl;
+        }
     }
 }
