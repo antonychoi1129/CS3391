@@ -1,85 +1,110 @@
-#include<bits/stdc++.h>
+#include <stdio.h>
+#include <string.h>
+#include <iostream>
+#include <string>
+#include <math.h>
+#include <algorithm>
+#include <map>
+#include <set>
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <queue>
+#include<iostream>
 using namespace std;
+#define MAX_EDGE 50000
+#define MAX_NODE 50000
+#define INF 0X3f3f3f3f
 
-typedef pair <int, vector<int>> same;
-
-bool canVisit(){
-    return (0 <= i && i < N && 0 <= j && j < N && board[i][j] != '*')? true : false;
+typedef struct {
+	int v;     // edge (u->v)
+	int cap;  // edge capacity (w)
+	int nxt;  // the next edge connected by node u.
+}EDGE;
+int head[MAX_EDGE]; // the first edge connected by node u.
+int totaledge; // the total number of edges
+EDGE edge[MAX_NODE];
+int d[MAX_NODE];
+int f[MAX_EDGE];
+void cleargraph() {
+	totaledge = 0;
+	memset(head, -1, sizeof(head));
 }
 
-void addEdges(vector<same> adj[], int s, int i, int j){
-    adj[s].push_back(make_pair(i, j));
+void add_edge(int u, int v, int cap) {
+	edge[totaledge].v = v;
+	edge[totaledge].cap = cap;
+	edge[totaledge].nxt = head[u];
+	head[u] = totaledge;
+	totaledge++;
+}
+bool bfs(int S, int T) {
+	int u, v;
+	memset(d, -1, sizeof(d));
+	queue<int> Q;
+	while (!Q.empty())
+		Q.pop();
+	Q.push(S);
+	d[S] = 0;
+	while (!Q.empty()) {
+		u = Q.front();
+		Q.pop();
+		for (int e = head[u]; e != -1; e = edge[e].nxt) {
+			v = edge[e].v;
+			// d[v]=-1,then v is not visited yet
+			// and the flow did not reach the capacity
+			if ((d[v] == -1) && edge[e].cap > f[e]) {
+				d[v] = d[u] + 1;
+				Q.push(v);
+			}
+		}
+	}
+	return d[T] >= 0;
 }
 
-struct node{
-    int x,y;
-    int distance;
-};
-
-struct comp{
-    bool operator()(const node& a, const node& b){
-        return a.distance > b.distance;
-    }
-};
-
-node createNode(int x, int y, int distance){
-    node new_node;
-    new_node.x = x;
-    new_node.y = y;
-    new_node.distance = distance;
-    return new_node;
+int dinic(int u, int T, int Sum) {
+	if (u == T) return Sum;
+	int v, tp = Sum;
+	for (int e = head[u]; e != -1 && Sum; e = edge[e].nxt) {
+		v = edge[e].v;
+		// find augmenting path by d[]
+		if (d[v] == d[u] + 1 && edge[e].cap>f[e]) {
+			int canflow = dinic(v, T, min(Sum, edge[e].cap - f[e]));
+			f[e] += canflow;
+			f[e ^ 1] -= canflow;
+			Sum -= canflow;
+			// do not break, because may find more than 1 path
+		}
+	}
+	return tp - Sum;
 }
-
-int bfs(vector<same> adj[],  vector<vector<int>> cb, int r1, int c1, int r2, int c2){
-    int i,j,u;
-    int n = cb.size();
-    int s = r1 * n + c1;
-    int v = r2 * n + c2;
-    priority_queue<node, vector<node>, comp> pq;
-    node init = createNode(r1, c1, 0);
-    pq.push(init);
-  
-    vector<vector<bool>> visited(n+1, vector<bool>(n+1,0));
-    vector<vector<int>> dist(n+1, vector<int>(n+1,0));
-
-    q.push(init);
-    node u;
-    while(!q.empty()){
-         u = pq.top();
-         if(u.x == r2 && u.y == c2) return u.distance;
-         pq.pop();
-         for(int i = 0; i < adj[cb[r1][c1]].size(); i++){
-             if(!visited[adj[cb[r1][c1]][i].first][adj[cb[r1][c1]][i].second] = 1){
-                node a = createNode(adj[cb[r1][c1]][i].first, adj[cb[r1][c1]][i].second, dist[adj[cb[r1][c1]][i].first][adj[cb[r1][c1]][i].second]+1);
-                dist[adj[cb[r1][c1]][i].first][adj[cb[r1][c1]][i].second] = dist[adj[cb[r1][c1]][i].first][adj[cb[r1][c1]][i].second]+1;
-                pq.push(a);
-                visited[adj[cb[r1][c1]][i].first][adj[cb[r1][c1]][i].second] = 1;
-             }
-         }
-        if(u.x-1)
-
-    }
-    return 0;
+int maxFlow(int S, int T) {
+	int ans = 0;
+	while (bfs(S, T))
+		ans += dinic(S, T, INF);
+	return ans;
 }
-int main(){
-    int r, c, n, i, j, q, r1, c1, r2, c2;
-    while(cin >> r, c, n){
-        vector<vector<int>> cb(n, vector<int>(n));
-        vector<same> adj[n+1];
-        for(i=1; i <= n; i++){
-            for(j=1; j<=n; j++){
-                cin >> cb[i][j];
-                addEdges(adj, cb[i][j], i, j);
-            }
-        }
-        cin >> q;
-        for(i = 0; i < q; i++){
-            cin >> r1 >> c1 >> r2 >> c2;
-         
-            cout << bfs(adj, r1, c1, r2, c2) << endl;
-        }
+int main() {
+	int cnt = 0;
+	int xs[MAX_NODE];
+	int ys[MAX_NODE];
+    int L, W, N, d;
+	while (cin >> L >> W >> N) {
+		cout << L << W << N;
+		memset(f, 0, sizeof(f));
+		cleargraph();
+		int start = 2 * N, end = 2 * N + 1;
+		for (int i = 0; i < N; i++) {
+			scanf("%d%d", &xs[i], &ys[i]);
+			add_edge(i * 2, i * 2 + 1, 1);
 
-    }
-      
-    return 0;
+			add_edge(i * 2 + 1, i * 2, 0);
+			
+		}
+
+		int flow = maxFlow(start, end);
+		printf("Case %d: %d\n", ++cnt, flow);
+	}
+
+	return 0;
 }
