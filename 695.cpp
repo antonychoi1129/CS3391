@@ -32,5 +32,10 @@ int main(){
             else
                 num += (int)(input[i] - '0') * 10;
         }
+        product[0] = 1;
+		len = 1;
+        
+        for (int i = 0; i < n; i++)
+			multiply(product, num);
     }
 }
