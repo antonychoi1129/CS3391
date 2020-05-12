@@ -1,29 +1,37 @@
 #include<iostream>
 #include<vector>
+#include<algorithm>
 
 using namespace std;
 
-vector<int> Set;
+// #define size 52
 
+vector<int> Set(52);
+
+//Stragegy: sort the cost, if original road are in the same set, mark the road can be removed, if not then mark it can be added
 struct destroy{
     int from, to;
     int weight;
+    bool canDestroy;
     destroy(){}
     destroy(int from, int to, int weight){
         this->from = from;
         this->to = to;
         this->weight = weight;
+        this->canDestroy = false;
     }
 };
 
 struct add{
     int from, to;
     int weight;
+    bool canAdd;
     add(){}
     add(int from, int to, int weight){
         this->from = from;
         this->to = to;
         this->weight = weight;
+        this->canAdd = false;
     }
 };
 
@@ -39,14 +47,12 @@ int Find(int element){
         return Set[element] = Find(Set[element]);
 }
 
-void Union (int root1, int root2, int edges[]){
+void Union (int root1, int root2){
 	if(Set[root1] < Set[root2]){
         UnionSet(root1, root2);
-        edges[root1]++;
     }	
     else{
         UnionSet(root2, root1);
-        edges[root2]++;
     }
 }
 
@@ -55,48 +61,35 @@ bool CMP(add a, add b){
 }
 
 bool CMP1(destroy a, destroy b){
-    return a.weight < b.weight;
+    return a.weight > b.weight;
 }
 
 int main(){
     int n;
+
     while(cin >> n){
         if(n == 0) break;
-
         vector<add> b;
         vector<destroy> d;
-        int edges[n+1];
+        vector<vector<bool> > o(n+1, vector<bool>(n+1));
 
-        Set.resize(n+1);
         for(int i = 1; i <= n; i++){
             Set[i] = -1;
-            edges[i] = 0;
         }
             
         for(int i = 1; i <= n; i++){
             for(int j = 1; j <= n; j++){
                 char c;
                 cin >> c;
-                if(c == '1' && j > i){
-                    int root1 = Find(i);
-                    int root2 = Find(j);
-                    if(root1 != root2){
-                        Union(root1, root2, edges);
-                    }
-                    else {
-                        edges[root1]++;
-                    }
-                    	
-                }
+                o[i][j] = (int)(c - '0');
             }
         }
         for(int i = 1; i <= n; i++){
             for(int j = 1; j <= n; j++){
                 int temp;
                 cin >> temp;
-                if(j > i){
+                if(j > i)
                     b.push_back(add(i, j, temp));
-                }
             }
         }
 
@@ -108,40 +101,43 @@ int main(){
                     d.push_back(destroy(i, j, temp));
             }
         }
-        // for(int i = 1; i <= n; i++)
-        //     cout << "ed " << edges[i] << endl;
-        int rebuild = 0;
-        sort(b.begin(), b.end(), CMP);
-        for(int i = 0; i < b.size(); i++){
-            int root1 = Find(b[i].from);
-	        int root2 = Find(b[i].to);
-            if(root1 != root2){
-                Union(root1, root2, edges);
-                rebuild += b[i].weight;
-                if(Set[root1] < Set[root2]){
-                    cout << i << " " << edges[root1] << " " << Set[root2] << endl;
-                    edges[root1] += Set[root2]; 
-                }	
-                else{
-                    edges[root2] += Set[root1];
-                    cout << i << " " <<edges[root2] << " " << Set[root1] << endl;
-
-    }
-            }
-        }
-        
-// for(int i = 1; i <= n; i++)
-//             cout << "   ed " << edges[i] << endl;
+       
         sort(d.begin(), d.end(), CMP1);
         for(int i = 0; i < d.size(); i++){
-            int root = Find(d[i].from);
-            // cout << "condi " << root << " " << d[i].from << " " <<  d[i].to << endl;
-            // cout << "compare " << edges[root] << " " <<  -Set[root]-1 << endl;
-            if(edges[root] > (-Set[root]) - 1){
-                // cout << "remove " << root << " " << d[i].from << " " <<  d[i].to << endl;
-                rebuild += d[i].weight;
-                edges[root]--;
+            if(o[d[i].from][d[i].to]){
+                int root1 = Find(d[i].from);
+                int root2 = Find(d[i].to);
+                if(root1 == root2){
+                    d[i].canDestroy = true;
+                }
+                else{
+                    Union(root1, root2);
+                }
+            }
+        }
 
+        sort(b.begin(), b.end(), CMP);
+        for(int i = 0; i < b.size(); i++){
+            if(!o[b[i].from][b[i].to]){
+                int root1 = Find(b[i].from);
+                int root2 = Find(b[i].to);
+                if(root1 != root2){
+                    b[i].canAdd = true;
+                    Union(root1, root2);
+                }
+            } 
+        }
+
+        int rebuild = 0;
+        for(int i = 0; i < d.size(); i++){
+            if(d[i].canDestroy){
+                rebuild += d[i].weight;
+            }
+        }
+
+        for(int i = 0; i < b.size(); i++){
+            if(b[i].canAdd){
+                rebuild += b[i].weight;
             }
         }
         cout << rebuild << endl;
