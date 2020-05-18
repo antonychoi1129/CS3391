@@ -20,13 +20,9 @@ double area(point a, point b, point c) {
 
 bool isInside(point a, point b, point c, point z) {    
    double A = area (a, b, c); 
-//    cout << A << endl;
    double A1 = area (a , b, z); 
-//   cout << A1 << endl;
    double A2 = area (z, b, c); 
-//   cout << A2 << endl;
    double A3 = area (a, z, c); 
-    // cout << A3 << endl;
    return (A == A1 + A2 + A3); 
 } 
 

@@ -1,61 +1,73 @@
-
+  
+#include <stdio.h>
+#include <math.h>
 #include <iostream>
-#include <string>
+#include <cmath>
+#include <vector>
+#include <map>
 using namespace std;
-typedef long long ll;
- 
-const int maxn=2e3+100;
-string str[maxn];
-int a[maxn];
-int l[maxn];
-int r[maxn];
-int vis[maxn];
-int main()
-{
-    int n;
-    cin>>n;
-    string s;
-    for(int i=1;i<=n;i++)
-    {
-        cin>>s;
-        int num=s.size();
-        memset(vis,0,sizeof(vis));
-        int sum=0;
-        for(int j=0;j<num;j++)
-        {
-            a[j]=min(s[j]-'A','Z'-s[j]+1);
-            sum+=a[j];
-        }
-        int ans=sum+num-1;
-        int tot=0;
-        for(int j=1;j<num;j++)
-        {
-            if(s[j]=='A'&&!vis[j])
-            {
-                vis[j]=1;
-                l[++tot]=j-1;
-                int now=j+1;
-                while(now<num&&s[now]=='A')
-                {
-                    vis[now]=1;
-                    now++;
-                }
-                if(now==num)
-                {
-                    r[tot]=num;
-                }
-                else r[tot]=now;
-            }
-        }
-        cout << ans << endl;
-        for(int j=1;j<=tot;j++)
-        {
-          cout << l[j] << " " << r[j] << " " << min(ans,min(sum+l[j]*2+num-r[j],sum+(num-r[j])*2+l[j])) << endl;
-          cout << sum+l[j]*2+num-r[j] << " " << sum+(num-r[j])*2+l[j] << endl;
-            ans=min(ans,min(sum+l[j]*2+num-r[j],sum+(num-r[j])*2+l[j]));
-        }
-        cout<<ans<<endl;
-    }
-    return 0;
+#define N 1000000
+#define width 6
+int len, product[N] = { 0 };
 
+void multiply(int a[], int n){
+	int carry = 0, i;
+	for (i = 0; i < len; i++){
+		int tmp = a[i] * n + carry;
+		a[i] = tmp % 10;
+		carry = tmp / 10;
+	}
+	while (carry){
+		a[i++] = carry % 10;
+		carry /= 10;
+	}
+	len = i;
+}
+int main(){
+	int n;
+	char input[width];
+	while (scanf("%s %d", input, &n) != EOF){
+		int l = 0, number = 0;
+		for (int i = 0; i < width; i++){
+			if (input[i] == '.')
+				l = (width - i - 1) * n;
+			else
+				number = number * 10 + input[i] - 48;
+		}
+
+		product[0] = 1;
+		len = 1;
+
+		for (int i = 0; i < n; i++)
+			multiply(product, number);
+
+        for (int i = 0; i < len; i++)
+            cout << product[i];
+            cout << endl;
+		// if (len <= l){
+		// 	cout << '.';
+		// 	for (int i = 0; i < l - len; i++)
+		// 		cout << '0';
+		// 	int j = 0;
+		// 	while (!product[j]) 
+		// 		j++;
+			
+		// 	for (int i = len - 1; i >= j; i--)
+		// 		cout << product[i];
+		// }
+		// else{
+		// 	int j = 0;
+		// 	while (!product[j] && j < l)
+		// 		j++;
+		// 	for (int i = len - 1; i >= j; i--){
+		// 		if (i + 1 == l)
+		// 			cout << '.';
+		// 		cout << product[i];
+		// 	}
+		// }
+		// cout << endl;
+	}
+
+
+	return 0;
 }

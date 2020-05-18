@@ -4,8 +4,7 @@
 
 using namespace std;
 
-unsigned ModExp(unsigned a, unsigned b, unsigned c)
-{
+unsigned ModExp(unsigned a, unsigned b, unsigned c){
     unsigned tmp;
 
     if(a==0) return 0;

@@ -5,7 +5,7 @@
 using namespace std;
 
 
-#define maxn 50001
+#define maxn 5000*2+2
 #define INF 0x3f3f3f3f
 
 struct Edge {
@@ -91,29 +91,36 @@ struct Dinic {
   }
 };
 int main(){
-	
-    int n, m, k;
-	while(cin >> n >> m >> k){
+	int n, m;
+	while(cin >> n >> m){
+		int cnt = 0;
+		int i, j, a, b, c;
 		
-		int start = 0, end = n+m-1;
+		int sum = 0;
+		int maxProfit = 0;
+		
+		int start = 0, end = n + 1;
 		Dinic d;
 		d.init(n);
-
-        for (int i = 1; i <= n - 1; i++) {
-			d.AddEdge(start, i, 1);
-		}	
-
-        for (int i = n; i <= n + m - 2; i++) {
-            d.AddEdge(i, end, 1);
-		}
-
-		int a, b;
-		for (int i = 0; i < k; i++){
-            cin >> a >> b;
-			if (a!=0 && b!=0) {
-				d.AddEdge(a, b + n - 1, 1);
+		for (i = 1; i <= n; i++)
+		{
+			cin >> c;
+			if (c > 0) {
+				d.AddEdge(start, i, c);
+				sum += c;
 			}
+			else if(c<0){
+				d.AddEdge(i, end, -c);
+			}
+			
 		}
-		cout << d.Maxflow(start, end) << endl;
+		for (i = 1; i <= m; i++)
+		{
+			cin >> a >> b;
+			d.AddEdge(a , b , INF);
+		}
+		long long flow = d.Maxflow(start, end);
+		maxProfit = sum - flow;
+		cout << d.cnt()-1 << " " << maxProfit << endl;
 	}
 }

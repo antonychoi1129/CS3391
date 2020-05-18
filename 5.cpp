@@ -1,110 +1,55 @@
-#include <stdio.h>
-#include <string.h>
 #include <iostream>
-#include <string>
-#include <math.h>
-#include <algorithm>
-#include <map>
-#include <set>
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <queue>
-#include<iostream>
 using namespace std;
-#define MAX_EDGE 50000
-#define MAX_NODE 50000
-#define INF 0X3f3f3f3f
 
-typedef struct {
-	int v;     // edge (u->v)
-	int cap;  // edge capacity (w)
-	int nxt;  // the next edge connected by node u.
-}EDGE;
-int head[MAX_EDGE]; // the first edge connected by node u.
-int totaledge; // the total number of edges
-EDGE edge[MAX_NODE];
-int d[MAX_NODE];
-int f[MAX_EDGE];
-void cleargraph() {
-	totaledge = 0;
-	memset(head, -1, sizeof(head));
+int extended_gcd(int a, int b, int &x, int &y) {
+    x = 1;
+    y = 0;
+
+    if (0 == b) return a;
+
+    int new_x = 0;
+    int new_y = 1;
+    int new_r = b;
+    int r = a;
+    int quotient, tmp;
+    while (new_r) {
+        quotient = r / new_r;
+
+        tmp = r;
+        r = new_r;
+        new_r = tmp - quotient * new_r;
+
+        tmp = x;
+        x = new_x;
+        new_x = tmp - quotient * new_x;
+
+        tmp = y;
+        y = new_y;
+        new_y = tmp - quotient * new_y;
+    }
+    return r;
 }
+bool linear_congruence_equation(int a, int b, int n) {
+    int x, y;
+    int d = extended_gcd(a, n, x, y);
+    if (b % d)  // no solutions
+        return false;
+    int x0 = x * (b / d) % n;  // particular solution
+    cout << d  << endl;
+    for (int i = 1; i < d; ++i) {
 
-void add_edge(int u, int v, int cap) {
-	edge[totaledge].v = v;
-	edge[totaledge].cap = cap;
-	edge[totaledge].nxt = head[u];
-	head[u] = totaledge;
-	totaledge++;
+        cout << (x0 + i * (n / d)) % n << endl;
+    }
+    return true;
 }
-bool bfs(int S, int T) {
-	int u, v;
-	memset(d, -1, sizeof(d));
-	queue<int> Q;
-	while (!Q.empty())
-		Q.pop();
-	Q.push(S);
-	d[S] = 0;
-	while (!Q.empty()) {
-		u = Q.front();
-		Q.pop();
-		for (int e = head[u]; e != -1; e = edge[e].nxt) {
-			v = edge[e].v;
-			// d[v]=-1,then v is not visited yet
-			// and the flow did not reach the capacity
-			if ((d[v] == -1) && edge[e].cap > f[e]) {
-				d[v] = d[u] + 1;
-				Q.push(v);
-			}
-		}
-	}
-	return d[T] >= 0;
-}
+int main(){
+    int t, y, n;
+    cin >> t;
+    while(t--){
+        cin >> y >> n;
+        bool x = linear_congruence_equation(y,n, 520);
+         cout << x << endl;
+    }
 
-int dinic(int u, int T, int Sum) {
-	if (u == T) return Sum;
-	int v, tp = Sum;
-	for (int e = head[u]; e != -1 && Sum; e = edge[e].nxt) {
-		v = edge[e].v;
-		// find augmenting path by d[]
-		if (d[v] == d[u] + 1 && edge[e].cap>f[e]) {
-			int canflow = dinic(v, T, min(Sum, edge[e].cap - f[e]));
-			f[e] += canflow;
-			f[e ^ 1] -= canflow;
-			Sum -= canflow;
-			// do not break, because may find more than 1 path
-		}
-	}
-	return tp - Sum;
-}
-int maxFlow(int S, int T) {
-	int ans = 0;
-	while (bfs(S, T))
-		ans += dinic(S, T, INF);
-	return ans;
-}
-int main() {
-	int cnt = 0;
-	int xs[MAX_NODE];
-	int ys[MAX_NODE];
-    int L, W, N, d;
-	while (cin >> L >> W >> N) {
-		cout << L << W << N;
-		memset(f, 0, sizeof(f));
-		cleargraph();
-		int start = 2 * N, end = 2 * N + 1;
-		for (int i = 0; i < N; i++) {
-			scanf("%d%d", &xs[i], &ys[i]);
-			add_edge(i * 2, i * 2 + 1, 1);
-
-			add_edge(i * 2 + 1, i * 2, 0);
-			
-		}
-
-		int flow = maxFlow(start, end);
-		printf("Case %d: %d\n", ++cnt, flow);
-	}
-
-	return 0;
+    return 0;
 }
