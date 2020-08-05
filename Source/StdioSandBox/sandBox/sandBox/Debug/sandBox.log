@@ -1,0 +1,7 @@
+﻿  Source.cpp
+c:\users\admin\onedrive - city university of hong kong\cs3391_advprogramming\void\stdiosandbox\sandbox\sandbox\source.cpp(71): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1270): note: see declaration of 'scanf'
+c:\users\admin\onedrive - city university of hong kong\cs3391_advprogramming\void\stdiosandbox\sandbox\sandbox\source.cpp(76): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1270): note: see declaration of 'scanf'
+  sandBox.vcxproj -> C:\Users\admin\OneDrive - City University of Hong Kong\CS3391_AdvProgramming\Void\StdioSandBox\sandBox\Debug\sandBox.exe
+  sandBox.vcxproj -> C:\Users\admin\OneDrive - City University of Hong Kong\CS3391_AdvProgramming\Void\StdioSandBox\sandBox\Debug\sandBox.pdb (Full PDB)
